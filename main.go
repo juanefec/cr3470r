@@ -1,27 +1,21 @@
 package main
 
 import (
-	//"github.com/faiface/pixel"
-	"image/png"
-	//"github.com/faiface/pixel/pixelgl"
 	"image"
+	"image/png"
 	"os"
 )
 
 const (
-	outputWidth  = 1920
-	outputHeight = 1080
+	outputWidth  = 960
+	outputHeight = 540
 )
 
 func main() {
-	create(outputWidth, outputHeight)
+	createWierdStuff(outputWidth, outputHeight)
 }
 
-func create(w, h int) {
-
-	//pixs, err := getPixels(img)
-
-	// do stuff
+func createStuff(w, h int) {
 
 	img, err := doStuff(w, h)
 	if err != nil {
@@ -29,9 +23,52 @@ func create(w, h int) {
 	}
 
 	f, _ := os.Create("image2.png")
-	png.Encode(f, img)
 	defer f.Close()
+	png.Encode(f, img)
+}
 
+func createWierdStuff(w, h int) {
+
+	pixm := createPixelMatrix(w, h)
+
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			pixm[x][y] = Pixel{
+				int(Map(float64(x/100), 0, 10, 0, 255)),
+				int(Map(float64(y/100), 0, 5, 0, 255)),
+				int(Map(float64((x+y)/100), 0, 15, 0, 255)),
+				255,
+			}
+		}
+	}
+
+	img := imageFromPixels(pixm)
+
+	f, _ := os.Create("image3mini.png")
+	defer f.Close()
+	png.Encode(f, img)
+}
+
+func createPixelMatrix(w, h int) [][]Pixel {
+	pixs := make([][]Pixel, w)
+	for x := 0; x < w; x++ {
+		pixs[x] = make([]Pixel, h)
+	}
+	return pixs
+}
+
+func imageFromPixels(pixs [][]Pixel) image.Image {
+	width := len(pixs)
+	height := len(pixs[0])
+	img := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{width, height}})
+
+	for x := 0; x < len(pixs); x++ {
+		for y := 0; y < len(pixs[x]); y++ {
+			img.Set(x, y, pixs[x][y])
+		}
+	}
+
+	return img
 }
 
 // Get the bi-dimensional pixel array
@@ -43,7 +80,12 @@ func doStuff(w, h int) (image.Image, error) {
 	for y := 0; y < height; y++ {
 
 		for x := 0; x < width; x++ {
-			c := Pixel{int(Map(float64(y), 0, 2000, 200, 0)), int(Map(float64(x), 0, 2000, 0, 255)), int(Map(float64(x+y), 0, 5000, 0, 255)), 255}
+			c := Pixel{
+				int(Map(float64(y), 0, 2000, 200, 0)),
+				int(Map(float64(x), 0, 2000, 0, 255)),
+				int(Map(float64(x+y), 0, 5000, 0, 255)),
+				255,
+			}
 			img.Set(x, y, c)
 		}
 	}
