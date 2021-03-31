@@ -43,7 +43,7 @@ func doStuff(w, h int) (image.Image, error) {
 	for y := 0; y < height; y++ {
 
 		for x := 0; x < width; x++ {
-			c := Pixel{int(Map(float64(y), 0, 2000, 200, 0)), int(Map(float64(x), 0, 2000, 0, 255)), int(Map(float64(x+y), 0, 5000, 0, 255)), 10}
+			c := Pixel{int(Map(float64(y), 0, 2000, 200, 0)), int(Map(float64(x), 0, 2000, 0, 255)), int(Map(float64(x+y), 0, 5000, 0, 255)), 255}
 			img.Set(x, y, c)
 		}
 	}
