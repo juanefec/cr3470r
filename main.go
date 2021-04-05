@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/hex"
 	"image"
 	"image/png"
+	"math/rand"
 	"os"
+	"strconv"
+	"time"
 )
 
 const (
@@ -12,41 +16,57 @@ const (
 )
 
 func main() {
-	createWierdStuff(outputWidth, outputHeight)
-}
+	img := createWierdStuff(outputWidth, outputHeight)
 
-func createStuff(w, h int) {
-
-	img, err := doStuff(w, h)
-	if err != nil {
-		panic(err)
-	}
-
-	f, _ := os.Create("image2.png")
+	f, _ := os.Create("image3mini.png")
 	defer f.Close()
 	png.Encode(f, img)
 }
 
-func createWierdStuff(w, h int) {
+func createStuff(w, h int) image.Image {
+	img, err := doStuff(w, h)
+	if err != nil {
+		panic(err)
+	}
+	return img
+}
+
+var src = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+// RandStringBytesMaskImprSrc returns a random hexadecimal string of length n.
+func RandStringBytesMaskImprSrc(n int) string {
+	b := make([]byte, (n+1)/2) // can be simplified to n/2 if n is always even
+
+	if _, err := src.Read(b); err != nil {
+		panic(err)
+	}
+
+	return hex.EncodeToString(b)[:n]
+}
+
+func createWierdStuff(w, h int) image.Image {
 
 	pixm := createPixelMatrix(w, h)
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
+			rand := RandStringBytesMaskImprSrc(6)
+			r, _ := strconv.ParseInt(rand[:2], 16, 64)
+			g, _ := strconv.ParseInt(rand[2:4], 16, 64)
+			b, _ := strconv.ParseInt(rand[4:6], 16, 64)
+
+			//fmt.Println(rand[:2], rand[2:4], rand[4:6])
 			pixm[x][y] = Pixel{
-				int(Map(float64(x/100), 0, 10, 0, 255)),
-				int(Map(float64(y/100), 0, 5, 0, 255)),
-				int(Map(float64((x+y)/100), 0, 15, 0, 255)),
+				int(r),
+				int(g),
+				int(b),
 				255,
 			}
 		}
 	}
 
-	img := imageFromPixels(pixm)
+	return imageFromPixels(pixm)
 
-	f, _ := os.Create("image3mini.png")
-	defer f.Close()
-	png.Encode(f, img)
 }
 
 func createPixelMatrix(w, h int) [][]Pixel {
